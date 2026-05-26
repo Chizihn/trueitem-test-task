@@ -1,20 +1,41 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getTasks, createTask, deleteTask } from "../api/tasks";
+import { useState } from "react";
+import tasksService from "../api/tasks";
 
 export const useTasks = () => {
   const queryClient = useQueryClient();
+  const [page, setPage] = useState<number>(1);
 
-  const tasks = useQuery({ queryKey: ["tasks"], queryFn: getTasks });
+  const tasksQuery = useQuery({
+    queryKey: ["tasks", page],
+    queryFn: () => tasksService.getTasks(page),
+  });
 
-  const add = useMutation({
-    mutationFn: createTask,
+  const addTask = useMutation({
+    mutationFn: (title: string) => tasksService.createTask(title),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   });
 
-  const remove = useMutation({
-    mutationFn: deleteTask,
+  const removeTask = useMutation({
+    mutationFn: (id: string) => tasksService.deleteTask(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   });
 
-  return { tasks, add, remove };
+  const toggleTask = useMutation({
+    mutationFn: ({ id, completed }: { id: string; completed: boolean }) =>
+      tasksService.toggleTask(id, completed),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+  });
+
+  return {
+    tasks: tasksQuery.data?.data ?? [],
+    total: tasksQuery.data?.total ?? 0,
+    page,
+    setPage,
+    isLoading: tasksQuery.isLoading,
+    isError: tasksQuery.isError,
+    addTask,
+    removeTask,
+    toggleTask,
+  };
 };

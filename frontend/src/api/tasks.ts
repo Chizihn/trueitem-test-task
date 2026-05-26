@@ -1,15 +1,27 @@
-// src/api/tasks.ts
-import type { Task } from "../types";
+import type { PaginatedResponse, Task } from "../types";
 import api from "./api";
 
-export const getTasks = (): Promise<Task[]> =>
-  api.get<Task[]>("/tasks").then((r) => r.data);
+const tasksService = {
+  getTasks: async (page = 1, limit = 10): Promise<PaginatedResponse<Task>> => {
+    const response = await api.get<PaginatedResponse<Task>>("/tasks", {
+      params: { page, limit },
+    });
+    return response.data;
+  },
 
-export const createTask = (title: string): Promise<Task> =>
-  api.post<Task>("/tasks", { title }).then((r) => r.data);
+  createTask: async (title: string): Promise<Task> => {
+    const response = await api.post<Task>("/tasks", { title });
+    return response.data;
+  },
 
-export const deleteTask = (id: string): Promise<void> =>
-  api.delete(`/tasks/${id}`).then((r) => r.data);
+  deleteTask: async (id: string): Promise<void> => {
+    await api.delete(`/tasks/${id}`);
+  },
 
-export const toggleTask = (id: string, completed: boolean): Promise<Task> =>
-  api.patch<Task>(`/tasks/${id}`, { completed }).then((r) => r.data);
+  toggleTask: async (id: string, completed: boolean): Promise<Task> => {
+    const response = await api.patch<Task>(`/tasks/${id}`, { completed });
+    return response.data;
+  },
+};
+
+export default tasksService;
