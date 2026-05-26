@@ -5,6 +5,18 @@ export interface Task {
   createdAt: string;
 }
 
+// Creating task payload
+export interface CreateTaskPayload {
+  clientId: string;
+  title: string;
+}
+
+// Toggle task payload
+export interface ToggleTaskPayload {
+  id: string;
+  completed: boolean;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
