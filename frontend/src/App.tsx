@@ -20,6 +20,7 @@ export default function App() {
     removeTask,
     toggleTask,
     isAddingTask,
+    refetch,
   } = useTasks();
 
   const totalPages = Math.ceil(total / LIMIT);
@@ -29,6 +30,9 @@ export default function App() {
     return (
       <div className="min-h-screen bg-[#0f0f0f] text-white px-4 py-10 font-sans">
         <div className="max-w-xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-semibold tracking-tight">My Tasks</h1>
+          </div>
           <div className="mb-8">
             <div className="h-8 w-40 bg-neutral-800 rounded animate-pulse" />
             <div className="h-4 w-32 bg-neutral-800 rounded animate-pulse mt-2" />
@@ -43,10 +47,14 @@ export default function App() {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">
-        <p className="text-sm text-red-400">
+      <div className="min-h-screen bg-[#0f0f0f] text-white flex flex-col gap-3 items-center justify-center ">
+        <p className="text-md text-red-400">
           Failed to load tasks: {error?.message ?? "Unknown error"}
         </p>
+
+        <Button onClick={() => refetch()} className="ml-4">
+          Try again
+        </Button>
       </div>
     );
   }
@@ -66,9 +74,7 @@ export default function App() {
             <div
               className="h-full bg-orange-500 transition-all duration-500"
               style={{
-                width: total
-                  ? `${(completed / total) * 100}%`
-                  : "0%",
+                width: total ? `${(completed / total) * 100}%` : "0%",
               }}
             />
           </div>

@@ -12,8 +12,19 @@ function getEnv(key: string): string {
   return value;
 }
 
+function getAllowedOrigins(): string | string[] {
+  const origins = process.env.ALLOWED_ORIGINS;
+  if (!origins) return "*";
+  if (origins.includes(",")) {
+    return origins.split(",").map((o) => o.trim());
+  }
+  return origins.trim();
+}
+
 export const env = {
   port: Number(process.env.PORT || 4000),
   databaseUrl: getEnv("DATABASE_URL"),
   nodeEnv: process.env.NODE_ENV || "development",
+  allowedOrigins: getAllowedOrigins(),
+  apiUrl: process.env.API_URL || `http://localhost:${process.env.PORT}`,
 };

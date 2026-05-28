@@ -71,6 +71,7 @@ export const useTasks = () => {
     isLoading: tasksQuery.isLoading,
     isError: tasksQuery.isError,
     error: tasksQuery.error,
+    refetch: tasksQuery.refetch,
 
     // Mutations
     addTask: addTaskMutation.mutate,

@@ -1,3 +1,5 @@
+const skeletonWidths = ["60%", "75%", "55%", "68%", "72%", "58%"];
+
 export default function TaskSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div className="flex flex-col gap-2">
@@ -12,7 +14,7 @@ export default function TaskSkeleton({ count = 4 }: { count?: number }) {
           {/* Title skeleton */}
           <div
             className="h-4 bg-neutral-700 rounded"
-            style={{ width: `${50 + Math.random() * 30}%` }}
+            style={{ width: skeletonWidths[i % skeletonWidths.length] }}
           />
         </div>
       ))}
