@@ -17,17 +17,26 @@ app.use(
 );
 app.use(express.json());
 
+// Logger middleware
+if (env.nodeEnv !== "test") {
+  app.use(requestLogger);
+}
+
 // Swagger Documentation Route
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Root route health check for pings (Uptime Robot, Render warmups, etc.)
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Todo API Service is running.",
+    documentation: "/docs",
+  });
+});
 
 app.use("/tasks", taskRoutes);
 
 // Error middleware
 app.use(errorHandler);
-
-// Logger middleware
-if (env.nodeEnv !== "test") {
-  app.use(requestLogger);
-}
 
 export default app;
