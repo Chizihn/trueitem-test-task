@@ -12,15 +12,15 @@ const tasksService = {
     page = 1,
     limit = 10,
   ): Promise<PaginatedResponse<Task>> => {
-    const response = await api.get<PaginatedResponse<Task>>("/tasks", {
+    const response = await api.get<{ success: boolean } & PaginatedResponse<Task>>("/tasks", {
       params: { page, limit, clientId },
     });
     return response.data;
   },
 
   createTask: async (payload: CreateTaskPayload): Promise<Task> => {
-    const response = await api.post<Task>("/tasks", payload);
-    return response.data;
+    const response = await api.post<{ success: boolean; data: Task }>("/tasks", payload);
+    return response.data.data;
   },
 
   deleteTask: async (id: string): Promise<void> => {
@@ -28,11 +28,11 @@ const tasksService = {
   },
 
   toggleTask: async (payload: ToggleTaskPayload): Promise<Task> => {
-    const response = await api.patch<Task>(
+    const response = await api.patch<{ success: boolean; data: Task }>(
       `/tasks/${payload.id}`,
-      payload.completed,
+      { completed: payload.completed },
     );
-    return response.data;
+    return response.data.data;
   },
 };
 

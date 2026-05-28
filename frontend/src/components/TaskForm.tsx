@@ -3,9 +3,10 @@ import Button from "./ui/Button";
 
 interface TaskFormProps {
   onAdd: (title: string) => void;
+  disabled?: boolean;
 }
 
-export default function TaskForm({ onAdd }: TaskFormProps) {
+export default function TaskForm({ onAdd, disabled }: TaskFormProps) {
   const [value, setValue] = useState("");
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -27,7 +28,7 @@ export default function TaskForm({ onAdd }: TaskFormProps) {
       />
 
       <Button
-        disabled={!value.trim()}
+        disabled={!value.trim() || disabled}
         className="disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition"
       >
         Add Task

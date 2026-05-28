@@ -1,66 +1,55 @@
-import { useState } from "react";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
-import type { Task } from "./types";
+import TaskSkeleton from "./components/TaskSkeleton";
 import Button from "./components/ui/Button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTasks } from "./hooks/useTasks";
 
-const MOCK_TASKS: Task[] = [
-  {
-    id: "1",
-    title: "Set up project structure",
-    completed: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    title: "Build the API layer",
-    completed: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    title: "Connect frontend to backend",
-    completed: false,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "4",
-    title: "Write unit tests",
-    completed: false,
-    createdAt: new Date().toISOString(),
-  },
-];
+const LIMIT = 10;
 
 export default function App() {
-  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
-  const [page, setPage] = useState(1);
-  const LIMIT = 5;
+  const {
+    tasks,
+    total,
+    page,
+    setPage,
+    isLoading,
+    isError,
+    error,
+    addTask,
+    removeTask,
+    toggleTask,
+    isAddingTask,
+  } = useTasks();
 
-  const paginated = tasks.slice((page - 1) * LIMIT, page * LIMIT);
-  const totalPages = Math.ceil(tasks.length / LIMIT);
-
-  const addTask = (title: string) => {
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title,
-      completed: false,
-      createdAt: new Date().toISOString(),
-    };
-    setTasks((prev) => [newTask, ...prev]);
-  };
-
-  const deleteTask = (id: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-  };
-
-  const toggleTask = (id: string, completed: boolean) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed } : t)),
-    );
-  };
-
+  const totalPages = Math.ceil(total / LIMIT);
   const completed = tasks.filter((t) => t.completed).length;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0f0f0f] text-white px-4 py-10 font-sans">
+        <div className="max-w-xl mx-auto">
+          <div className="mb-8">
+            <div className="h-8 w-40 bg-neutral-800 rounded animate-pulse" />
+            <div className="h-4 w-32 bg-neutral-800 rounded animate-pulse mt-2" />
+            <div className="mt-3 h-1 w-full bg-neutral-800 rounded-full" />
+          </div>
+          <div className="h-11 w-full bg-neutral-900 border border-neutral-700 rounded-lg mb-6 animate-pulse" />
+          <TaskSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">
+        <p className="text-sm text-red-400">
+          Failed to load tasks: {error?.message ?? "Unknown error"}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white px-4 py-10 font-sans">
@@ -69,7 +58,7 @@ export default function App() {
         <div className="mb-8">
           <h1 className="text-3xl font-semibold tracking-tight">My Tasks</h1>
           <p className="text-sm text-neutral-400 mt-1">
-            {completed} of {tasks.length} completed
+            {completed} of {total} completed
           </p>
 
           {/* Progress bar */}
@@ -77,8 +66,8 @@ export default function App() {
             <div
               className="h-full bg-orange-500 transition-all duration-500"
               style={{
-                width: tasks.length
-                  ? `${(completed / tasks.length) * 100}%`
+                width: total
+                  ? `${(completed / total) * 100}%`
                   : "0%",
               }}
             />
@@ -86,13 +75,13 @@ export default function App() {
         </div>
 
         {/* Add Task Form */}
-        <TaskForm onAdd={addTask} />
+        <TaskForm onAdd={(title) => addTask(title)} disabled={isAddingTask} />
 
         {/* Task List */}
         <TaskList
-          tasks={paginated}
-          onDelete={deleteTask}
-          onToggle={toggleTask}
+          tasks={tasks}
+          onDelete={(id) => removeTask(id)}
+          onToggle={(id, completed) => toggleTask({ id, completed })}
         />
 
         {/* Pagination */}
